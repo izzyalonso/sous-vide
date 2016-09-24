@@ -26,21 +26,46 @@
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp" >
+
+            <TextView
+                android:id="@+id/controller_temperature"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Temp"
+                android:textSize="18sp"
+                android:gravity="center" />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.4" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.6"
+                android:text="Time"
+                android:textSize="18sp"
+                android:gravity="center" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp" >
 
             <LinearLayout
                 android:orientation="vertical"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1" >
-
-                <TextView
-                    android:id="@+id/controller_temperature"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Temp"
-                    android:textSize="18sp"
-                    android:gravity="center" />
 
                 <TextView
                     android:id="@+id/controller_temperature_units"
@@ -52,7 +77,33 @@
 
                 <NumberPicker
                     android:id="@+id/controller_temperature_picker"
-                    android:layout_width="100dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal" />
+
+            </LinearLayout>
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.4" />
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.8" >
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="(hours)"
+                    android:textSize="15sp"
+                    android:gravity="center" />
+
+                <NumberPicker
+                    android:id="@+id/controller_hour_picker"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal" />
 
@@ -62,14 +113,7 @@
                 android:orientation="vertical"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1" >
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Time"
-                    android:textSize="18sp"
-                    android:gravity="center" />
+                android:layout_weight="0.8" >
 
                 <TextView
                     android:layout_width="match_parent"
@@ -79,8 +123,8 @@
                     android:gravity="center" />
 
                 <NumberPicker
-                    android:id="@+id/controller_time_picker"
-                    android:layout_width="100dp"
+                    android:id="@+id/controller_minute_picker"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal" />
 

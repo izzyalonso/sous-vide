@@ -20,33 +20,38 @@ import hack.memphis.sousvide.databinding.ActivityControllerBinding;
  * @version 1.0.0
  */
 public class ControllerActivity extends AppCompatActivity implements HttpRequest.RequestCallback, View.OnClickListener{
-    private ActivityControllerBinding mBinding;
+    private ActivityControllerBinding binding;
 
-    private char mUnits = 'C';
+    private char units = 'C';
 
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-        mBinding = DataBindingUtil.setContentView(this, R.layout.activity_controller);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_controller);
 
         //Set the toolbar
-        setSupportActionBar(mBinding.controllerToolbar);
+        setSupportActionBar(binding.controllerToolbar);
 
         //Setup the pickers
-        mBinding.controllerTemperaturePicker.setMinValue(30);
-        mBinding.controllerTemperaturePicker.setMaxValue(100);
-        mBinding.controllerTemperaturePicker.setValue(50);
-        mBinding.controllerTemperaturePicker.setWrapSelectorWheel(false);
+        binding.controllerTemperaturePicker.setMinValue(30);
+        binding.controllerTemperaturePicker.setMaxValue(100);
+        binding.controllerTemperaturePicker.setValue(50);
+        binding.controllerTemperaturePicker.setWrapSelectorWheel(false);
 
-        mBinding.controllerTimePicker.setMinValue(15);
-        mBinding.controllerTimePicker.setMaxValue(360);
-        mBinding.controllerTimePicker.setValue(90);
-        mBinding.controllerTimePicker.setWrapSelectorWheel(false);
+        binding.controllerMinutePicker.setMinValue(0);
+        binding.controllerMinutePicker.setMaxValue(60);
+        binding.controllerMinutePicker.setValue(30);
+        binding.controllerMinutePicker.setWrapSelectorWheel(false);
 
-        mBinding.controllerTemperature.setOnClickListener(this);
-        mBinding.controllerTemperatureUnits.setOnClickListener(this);
-        mBinding.controllerSwitch.setOnClickListener(this);
+        binding.controllerHourPicker.setMinValue(0);
+        binding.controllerHourPicker.setMaxValue(60);
+        binding.controllerHourPicker.setValue(1);
+        binding.controllerHourPicker.setWrapSelectorWheel(false);
+
+        binding.controllerTemperature.setOnClickListener(this);
+        binding.controllerTemperatureUnits.setOnClickListener(this);
+        binding.controllerSwitch.setOnClickListener(this);
 
         HttpRequest.init(getApplicationContext());
         HttpRequest.get(this, "https://sousvide.lyth.io/api/configuration/");
@@ -57,22 +62,22 @@ public class ControllerActivity extends AppCompatActivity implements HttpRequest
         switch (view.getId()){
             case R.id.controller_temperature:
             case R.id.controller_temperature_units:
-                int currentValue = mBinding.controllerTemperaturePicker.getValue();
-                if (mUnits == 'C'){
-                    mBinding.controllerTemperatureUnits.setText("(ºF, switch to C)");
+                int currentValue = binding.controllerTemperaturePicker.getValue();
+                if (units == 'C'){
+                    binding.controllerTemperatureUnits.setText("(ºF, switch to C)");
                     int newValue = Math.min(210, Math.max(85, CtoF(currentValue)));
-                    mBinding.controllerTemperaturePicker.setMinValue(85);
-                    mBinding.controllerTemperaturePicker.setMaxValue(210);
-                    mBinding.controllerTemperaturePicker.setValue(newValue);
-                    mUnits = 'F';
+                    binding.controllerTemperaturePicker.setMinValue(85);
+                    binding.controllerTemperaturePicker.setMaxValue(210);
+                    binding.controllerTemperaturePicker.setValue(newValue);
+                    units = 'F';
                 }
-                else if (mUnits == 'F'){
-                    mBinding.controllerTemperatureUnits.setText("(ºC, switch to F)");
+                else if (units == 'F'){
+                    binding.controllerTemperatureUnits.setText("(ºC, switch to F)");
                     int newValue = Math.min(100, Math.max(30, FtoC(currentValue)));
-                    mBinding.controllerTemperaturePicker.setMinValue(30);
-                    mBinding.controllerTemperaturePicker.setMaxValue(100);
-                    mBinding.controllerTemperaturePicker.setValue(newValue);
-                    mUnits = 'C';
+                    binding.controllerTemperaturePicker.setMinValue(30);
+                    binding.controllerTemperaturePicker.setMaxValue(100);
+                    binding.controllerTemperaturePicker.setValue(newValue);
+                    units = 'C';
                 }
                 break;
 
