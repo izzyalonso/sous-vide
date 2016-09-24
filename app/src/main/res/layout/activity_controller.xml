@@ -35,6 +35,7 @@
                 android:layout_weight="1" >
 
                 <TextView
+                    android:id="@+id/controller_temperature"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Temp"
@@ -45,7 +46,7 @@
                     android:id="@+id/controller_temperature_units"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="(ºC)"
+                    android:text="(ºC, switch to F)"
                     android:textSize="15sp"
                     android:gravity="center" />
 
