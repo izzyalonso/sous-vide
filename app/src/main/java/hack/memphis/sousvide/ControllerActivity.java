@@ -10,6 +10,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 
+import com.google.gson.Gson;
+import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.LineGraphSeries;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.List;
+
 import es.sandwatch.httprequests.HttpRequest;
 import es.sandwatch.httprequests.HttpRequestError;
 
@@ -31,9 +41,14 @@ public class ControllerActivity extends AppCompatActivity implements HttpRequest
 
     private String scale;
     private Configuration configuration;
+    private List<TemperatureLog> temperatureLogs;
+
+    private LineGraphSeries<DataPoint> series;
+    private long lastLogUpdate;
 
     private int getConfigRC;
     private int postConfigRC;
+    private int getLogsRC;
 
 
     @Override
@@ -114,6 +129,8 @@ public class ControllerActivity extends AppCompatActivity implements HttpRequest
                     binding.controllerMinutePicker.setEnabled(true);
 
                     binding.controllerSwitch.setText("Start");
+
+                    binding.controllerPlot.setVisibility(View.GONE);
                 }
                 else{
                     int temperature = binding.controllerTemperaturePicker.getValue();
@@ -153,6 +170,10 @@ public class ControllerActivity extends AppCompatActivity implements HttpRequest
             binding.controllerPostProgress.setVisibility(View.GONE);
 
             updateTimer();
+            setUpGraph();
+        }
+        else if (requestCode == getLogsRC){
+            parseLogs(result);
         }
     }
 
@@ -176,6 +197,7 @@ public class ControllerActivity extends AppCompatActivity implements HttpRequest
             binding.controllerSwitch.setText("Stop");
 
             updateTimer();
+            setUpGraph();
         }
 
         if (scale.equalsIgnoreCase("F")){
@@ -218,6 +240,61 @@ public class ControllerActivity extends AppCompatActivity implements HttpRequest
                 }
             }, 30000);
         }
+    }
+
+    private void setUpGraph(){
+        binding.controllerPlot.setVisibility(View.VISIBLE);
+
+        binding.controllerPlot.removeAllSeries();
+        binding.controllerPlot.getViewport().setMinX(0);
+        binding.controllerPlot.getViewport().setMaxX(configuration.getDuration());
+        binding.controllerPlot.getViewport().setXAxisBoundsManual(true);
+        binding.controllerPlot.getViewport().setMinY(25);
+        binding.controllerPlot.getViewport().setMaxY(105);
+        binding.controllerPlot.getViewport().setYAxisBoundsManual(true);
+
+        series = new LineGraphSeries<>();
+        binding.controllerPlot.addSeries(series);
+
+        TemperatureLog.reset();
+
+        getLogsRC = HttpRequest.get(this, "https://sousvide.lyth.io/api/logs/");
+    }
+
+    private void parseLogs(String logs){
+        try{
+            JSONArray logArray = new JSONObject(logs).getJSONArray("logs");
+            Log.d("Logs", logArray.length() + " new logs");
+            Gson gson = new Gson();
+            for (int i = 0; i < logArray.length(); i++){
+                JSONObject logObject = logArray.getJSONObject(i);
+                Log.d("Logs", logObject.toString());
+                TemperatureLog log = gson.fromJson(logObject.toString(), TemperatureLog.class);
+                if (log.display(configuration.getStartTime())){
+                    int min = log.getMinute(configuration.getStartTime());
+                    Log.d("Logs", "Min: " + min);
+                    series.appendData(new DataPoint(min, (int)log.getTemperature()), false, 99999);
+                }
+            }
+        }
+        catch (JSONException jx){
+            jx.printStackTrace();
+        }
+
+
+        lastLogUpdate = System.currentTimeMillis();
+        if (configuration.isRunning() && !configuration.isDone()){
+            new Handler().postDelayed(new Runnable(){
+                @Override
+                public void run(){
+                    updateLogs();
+                }
+            }, 3000);
+        }
+    }
+
+    private void updateLogs(){
+        getLogsRC = HttpRequest.get(this, "https://sousvide.lyth.io/api/logs/" + lastLogUpdate + "/");
     }
 
     private int CtoF(int value){

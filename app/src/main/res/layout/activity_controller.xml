@@ -164,6 +164,12 @@
                     android:layout_centerInParent="true"
                     android:visibility="gone" />
 
+                <com.jjoe64.graphview.GraphView
+                    android:id="@+id/controller_plot"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:visibility="gone" />
+
             </RelativeLayout>
         </LinearLayout>
     </RelativeLayout>
