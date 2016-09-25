@@ -1,6 +1,7 @@
 package hack.memphis.sousvide;
 
 import com.google.gson.Gson;
+import com.google.gson.annotations.SerializedName;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -13,9 +14,13 @@ import org.json.JSONObject;
  * @version 1.0.0
  */
 public class Configuration{
+    @SerializedName("running")
     private boolean running;
+    @SerializedName("temperature")
     private double temperature;
+    @SerializedName("start_time")
     private long startTime;
+    @SerializedName("duration")
     private int duration;
 
 
@@ -48,6 +53,10 @@ public class Configuration{
 
     public int getDuration(){
         return duration;
+    }
+
+    public void stop(){
+        running = false;
     }
 
     public JSONObject toJson(){

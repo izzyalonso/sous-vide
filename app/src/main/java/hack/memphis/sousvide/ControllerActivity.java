@@ -3,6 +3,7 @@ package hack.memphis.sousvide;
 import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -23,6 +24,7 @@ import hack.memphis.sousvide.databinding.ActivityControllerBinding;
  */
 public class ControllerActivity extends AppCompatActivity implements HttpRequest.RequestCallback, View.OnClickListener{
     private static final String SCALE_KEY = "scale";
+    private static final int MINUTE_IN_MILLIS = 60*1000;
 
 
     private ActivityControllerBinding binding;
@@ -100,7 +102,12 @@ public class ControllerActivity extends AppCompatActivity implements HttpRequest
 
             case R.id.controller_switch:
                 if (configuration.isRunning()){
+                    configuration.stop();
+
                     HttpRequest.delete(this, "https://sousvide.lyth.io/api/configuration/");
+
+                    binding.controllerTitle.setText("Set your parameters");
+                    binding.controllerTime.setText("Time");
 
                     binding.controllerTemperaturePicker.setEnabled(true);
                     binding.controllerHourPicker.setEnabled(true);
@@ -117,6 +124,7 @@ public class ControllerActivity extends AppCompatActivity implements HttpRequest
                     duration += binding.controllerHourPicker.getValue()*60;
                     Configuration configuration = new Configuration(temperature, duration);
                     String url = "https://sousvide.lyth.io/api/configuration/";
+                    Log.d("POSTING", configuration.toJson().toString());
                     postConfigRC = HttpRequest.post(this, url, configuration.toJson());
 
                     binding.controllerTemperaturePicker.setEnabled(false);
@@ -138,9 +146,13 @@ public class ControllerActivity extends AppCompatActivity implements HttpRequest
         else if (requestCode == postConfigRC){
             configuration = Configuration.fromJson(result);
 
+            binding.controllerTitle.setText("Cooking!");
+            binding.controllerTime.setText("Time left");
             binding.controllerSwitch.setEnabled(true);
             binding.controllerSwitch.setText("Stop");
             binding.controllerPostProgress.setVisibility(View.GONE);
+
+            updateTimer();
         }
     }
 
@@ -152,6 +164,8 @@ public class ControllerActivity extends AppCompatActivity implements HttpRequest
     private void setConfiguration(Configuration configuration){
         this.configuration = configuration;
         if (configuration.isRunning()){
+            binding.controllerTitle.setText("Cooking!");
+            binding.controllerTime.setText("Time left");
             binding.controllerTemperaturePicker.setValue((int)configuration.getTemperature());
             binding.controllerTemperaturePicker.setEnabled(false);
             binding.controllerHourPicker.setValue(configuration.getDuration() / 60);
@@ -160,6 +174,8 @@ public class ControllerActivity extends AppCompatActivity implements HttpRequest
             binding.controllerMinutePicker.setEnabled(false);
 
             binding.controllerSwitch.setText("Stop");
+
+            updateTimer();
         }
 
         if (scale.equalsIgnoreCase("F")){
@@ -173,6 +189,35 @@ public class ControllerActivity extends AppCompatActivity implements HttpRequest
 
         binding.controllerLoadProgress.setVisibility(View.GONE);
         binding.controllerContentContainer.setVisibility(View.VISIBLE);
+    }
+
+    private void updateTimer(){
+        if (!configuration.isRunning() || configuration.isDone()){
+            binding.controllerTitle.setText("Set your parameters");
+            binding.controllerTime.setText("Time");
+            binding.controllerTemperaturePicker.setEnabled(true);
+            binding.controllerHourPicker.setEnabled(true);
+            binding.controllerMinutePicker.setEnabled(true);
+        }
+        else{
+            int timeSinceStart = (int)(System.currentTimeMillis()-configuration.getStartTime());
+            int minutesSinceStart = timeSinceStart/MINUTE_IN_MILLIS;
+            int minutesToComplete = configuration.getDuration()-minutesSinceStart;
+            int hoursLeft = minutesToComplete/60;
+            int minutesLeft = minutesToComplete%60;
+
+            binding.controllerHourPicker.setValue(hoursLeft);
+            binding.controllerMinutePicker.setValue(minutesLeft);
+
+            Log.d("Timer", "Since start: " + timeSinceStart);
+
+            new Handler().postDelayed(new Runnable(){
+                @Override
+                public void run(){
+                    updateTimer();
+                }
+            }, 30000);
+        }
     }
 
     private int CtoF(int value){
